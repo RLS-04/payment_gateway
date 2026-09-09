@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Gateway - Home</title>
+    <style>
+        h2{text-align: center; letter-spacing: 10px; font-family: Bahnschrift, sans-serif; color: olive; font-size: 50px; }
+        body { font-family: sans-serif; background: bisque; text-align: center; padding-top: 50px; }
+        .card { background: white; padding: 30px; border-radius: 12px; max-width: 400px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; }
+        div.card h3{text-align: center; letter-spacing: 10px; font-family: Bahnschrift, sans-serif; color: darkorange; font-size: 30px; }
+        input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+        .alt-link { text-align: center; margin-top: 15px; font-size: 14px; }
+        .alt-link a { color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<h2>Payment Gateway</h2>
+<div class="card">
+    <h3>User Sign In</h3>
+    <input type="text" id="loginId" placeholder="Username or Phone Number">
+    <input type="password" id="loginPass" placeholder="Password PIN">
+    <button onclick="handleLogin()">Login</button>
+
+    <div class="alt-link">
+        <p>New user? <a href="signup.html">Create an Account</a></p>
+        <p><a href="recovery.html">Forgot Password or Activation Link?</a></p>
+    </div>
+</div>
+
+<script>
+    async function handleLogin() {
+        const payload = {
+            identifier: document.getElementById('loginId').value,
+            password: document.getElementById('loginPass').value
+        };
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        if (result.status === "SUCCESS") {
+            // Save current user to browser storage session
+            localStorage.setItem("sessionUser", result.username);
+            alert("Login Successful!");
+            window.location.href = "payment.html";
+        } else {
+            alert(result.message);
+        }
+    }
+</script>
+</body>
+</html>

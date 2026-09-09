@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Recovery</title>
+    <style>
+        body { font-family: sans-serif; background: #eef2f3; text-align: center; padding-top: 50px; }
+        .card { background: white; padding: 30px; border-radius: 12px; max-width: 400px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; }
+        input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        button { width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h3>🔒 Identity Recovery</h3>
+    <p>Enter your phone number to re-trigger activation tokens without discarding database accounts.</p>
+    <input type="text" id="recoverPhone" placeholder="Registered Phone Number">
+    <button onclick="triggerRecovery()">Recover Verification State</button>
+</div>
+
+<script>
+    async function triggerRecovery() {
+        const phone = document.getElementById('recoverPhone').value;
+        localStorage.setItem("verifyPhone", phone);
+
+        const res = await fetch('/api/auth/regenerate-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber: phone })
+        });
+        const data = await res.json();
+        alert("Recovery state processed!\n" + data.simulatedSMS);
+        window.location.href = "verify.html";
+    }
+</script>
+</body>
+</html>
