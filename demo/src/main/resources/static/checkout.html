@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Card Clearance</title>
+    <style>
+        body { font-family: sans-serif; background: #eef2f3; text-align: center; padding-top: 50px; }
+        .card { background: white; padding: 30px; border-radius: 12px; max-width: 400px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; }
+        input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        .alert-success { background: #d4edda; color: #155724; padding: 15px; border-radius: 6px; margin-top: 15px; font-family: monospace; display: none;}
+    </style>
+</head>
+<body>
+<div class="card">
+    <h3>Card Clearance Verification</h3>
+    <input type="text" id="cardNo" placeholder="Card Number (4242 4242 4242 4242)">
+    <input type="text" id="txOtp" placeholder="Enter Transaction SMS OTP">
+    <button onclick="executeFinalClearing()">Confirm & Settle Funds</button>
+
+    <div id="receiptBox" class="alert-success"></div>
+</div>
+<script>
+    async function executeFinalClearing() {
+        const payload = {
+            username: localStorage.getItem("sessionUser"),
+            amount: localStorage.getItem("txAmount"),
+            billType: localStorage.getItem("txCategory"),
+            cardNumber: document.getElementById('cardNo').value,
+            otp: document.getElementById('txOtp').value, // 🌟 FIXED: Added the missing comma right here!
+
+            accountNumber: localStorage.getItem("txAccount"),
+            nicNumber: localStorage.getItem("txNic"),
+            phoneNumber: localStorage.getItem("txPhone")
+        };
+
+        const res = await fetch('/api/payments/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.status === "SUCCESS") {
+            alert("Clearance success! Generating dynamic digital summary invoice...");
+            // ⚡ Route directly onto your new dedicated layout portal page
+            window.location.href = "receipt.html";
+        } else {
+            alert("Declined: " + data.message);
+        }
+    }
+</script>
+
+</body>
+</html>

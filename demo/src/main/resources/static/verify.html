@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gateway - Device Verification</title>
+    <style>
+        body { font-family: sans-serif; background: #eef2f3; text-align: center; padding-top: 50px; }
+        .card { background: white; padding: 30px; border-radius: 12px; max-width: 400px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; }
+        input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        button { width: 100%; padding: 12px; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 8px;}
+        .btn-verify { background: #007bff; }
+        .btn-regen { background: #6c757d; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h3>Device Verification</h3>
+    <p>Enter the code sent to your phone number.</p>
+    <input type="text" id="otpCode" placeholder="000000">
+    <button class="btn-verify" onclick="verifyDevice()">Verify Account</button>
+    <button class="btn-regen" onclick="regenerateKey()">🔄 Regenerate Activation Key</button>
+</div>
+
+<script>
+    const storedPhone = localStorage.getItem("verifyPhone");
+
+    async function verifyDevice() {
+        const payload = { phoneNumber: storedPhone, otp: document.getElementById('otpCode').value };
+        const res = await fetch('/api/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if(data.status === "SUCCESS") {
+            alert("Account Activated! Proceeding to Log in.");
+            window.location.href = "index.html";
+        } else {
+            alert(data.message);
+        }
+    }
+
+    async function regenerateKey() {
+        const res = await fetch('/api/auth/regenerate-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber: storedPhone })
+        });
+        const data = await res.json();
+        alert("New activation loop triggered!\n" + data.simulatedSMS);
+    }
+</script>
+</body>
+</html>
